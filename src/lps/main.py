@@ -6,29 +6,33 @@ Example usage:
 $ lps timelapse <photofolder> <output video file>
 
 """
-import argparse
-import os
-import sys
+import logging
+
+import click
+
+from .timelapse import cli as timelapse
 
 
-def main(env, prog, argv):
-    args = get_parser(env, prog).parse_args(argv)
-    print(args)
+def configure_logging(verbose):
+    level = logging.NOTSET
+    FORMAT = "%(message)s"
+    if verbose == 1:
+        level = logging.INFO
+    if verbose > 1:
+        level = logging.DEBUG
+        FORMAT = "%(relativeCreated)d %(name)s | %(levelname)s | %(message)s"
+    logging.basicConfig(format=FORMAT, level=level)
 
 
-def get_parser(env, prog):
-    doc_paras = __doc__.split("\n\n")
-    parser = argparse.ArgumentParser(
-        description=doc_paras[0],
-        epilog="\n\n".join(doc_paras[1:]),
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        prog=prog,
-    )
-    return parser
+@click.group()
+@click.option("-v", "--verbose", count=True)
+def main(verbose):
+    configure_logging(verbose)
 
 
 def entry_point():
-    main(os.environ, sys.argv[0], sys.argv[1:])
+    main.add_command(timelapse.cli, name="timelapse")
+    main()
 
 
 if __name__ == "__main__":
