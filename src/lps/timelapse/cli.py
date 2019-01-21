@@ -1,8 +1,10 @@
 import click
 import logging
 
-from . import source
-from . import video
+from . import producers
+from . import consumers
+from . import processors
+from . import builder
 
 
 log = logging.getLogger("timelapse")
@@ -14,10 +16,11 @@ def cli():
 
 
 @cli.command()
-@click.argument("files", nargs=-1, type=click.Path())
-def create(files):
-    src = source.Source.from_list_of_files(files)
-    log.info("%d files added", len(src))
-    video.make_video(
-        images=src.files, outvid="test.avi", vidsize=(300, 450), size=(300, 450)
-    )
+@click.argument("output", type=click.Path(dir_okay=False))
+@click.argument("images", nargs=-1, type=click.Path())
+def instant(output, images):
+    timelapse = builder.Builder(producers.FileListProducer.from_list_of_files(images))
+    timelapse.append(producers.MakeImageFilter())
+    timelapse.append(processors.SimpleResize(300, 450))
+    timelapse.finish(consumers.VideoMaker(output, width=300, height=450))
+    timelapse.build()

@@ -37,7 +37,7 @@ if __name__ == "__main__":
         keywords=("photo", "timelapse"),
         zip_safe=False,
         python_requires=">=3.7",
-        install_requires=["Click==7.0'", "opencv-python-headless==4.0.0.21"],
+        install_requires=["Click>=7.0'", "opencv-python-headless==4.0.0.21"],
         setup_requires=["pytest-runner", "black"],
         tests_require=["pytest-cov", "colorama", "pytest"],
         entry_points={"console_scripts": ["lps=lps.main:entry_point"]},
